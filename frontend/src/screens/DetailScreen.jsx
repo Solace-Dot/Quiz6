@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 
 import { createOrder } from '../actions/orderActions';
 import { getServiceDetails } from '../actions/serviceActions';
@@ -46,7 +46,7 @@ const DetailScreen = () => {
         )}
       </div>
       <div className="detail-card stack-md">
-        <span className="eyebrow">Service Detail</span>
+        <span className="eyebrow">Pressure Washing Service Detail</span>
         <div className="detail-header">
           <h1>{service.service_name}</h1>
           <span className="rating-pill large">{service.rating}★</span>
@@ -67,7 +67,7 @@ const DetailScreen = () => {
           </div>
         </div>
 
-        {success && <div className="success-banner">Service order logged successfully.</div>}
+        {success && <div className="success-banner">Pressure washing order logged successfully.</div>}
         {(orderError || localMessage) && <div className="error-banner">{orderError || localMessage}</div>}
 
         {!userInfo && (
@@ -84,36 +84,38 @@ const DetailScreen = () => {
 
         {canCheckout && (
           <div className="paypal-panel">
-            <PayPalButtons
-              style={{ layout: 'vertical', shape: 'pill' }}
-              createOrder={(data, actions) =>
-                actions.order.create({
-                  purchase_units: [
-                    {
-                      description: service.service_name,
-                      amount: { value: String(service.price) },
-                      payee: { merchant_id: service.seller_merchant_id },
-                    },
-                  ],
-                })
-              }
-              onApprove={async (data, actions) => {
-                setLocalMessage('');
-                const details = await actions.order.capture();
-                const transactionId =
-                  details.id || details.purchase_units?.[0]?.payments?.captures?.[0]?.id || data.orderID;
-                dispatch(
-                  createOrder({
-                    service: service.id,
-                    paypal_transaction_id: transactionId,
-                    price_paid: service.price,
+            <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: 'USD', intent: 'capture' }}>
+              <PayPalButtons
+                style={{ layout: 'vertical', shape: 'pill' }}
+                createOrder={(data, actions) =>
+                  actions.order.create({
+                    purchase_units: [
+                      {
+                        description: service.service_name,
+                        amount: { value: String(service.price) },
+                        payee: { merchant_id: service.seller_merchant_id },
+                      },
+                    ],
                   })
-                );
-              }}
-              onError={() => {
-                setLocalMessage('PayPal checkout could not be completed.');
-              }}
-            />
+                }
+                onApprove={async (data, actions) => {
+                  setLocalMessage('');
+                  const details = await actions.order.capture();
+                  const transactionId =
+                    details.id || details.purchase_units?.[0]?.payments?.captures?.[0]?.id || data.orderID;
+                  dispatch(
+                    createOrder({
+                      service: service.id,
+                      paypal_transaction_id: transactionId,
+                      price_paid: service.price,
+                    })
+                  );
+                }}
+                onError={() => {
+                  setLocalMessage('PayPal checkout could not be completed.');
+                }}
+              />
+            </PayPalScriptProvider>
           </div>
         )}
       </div>

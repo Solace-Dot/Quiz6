@@ -69,7 +69,7 @@ const SellerDashboard = () => {
       <section className="panel stack-md">
         <div>
           <span className="eyebrow">Seller Workspace</span>
-          <h1>{editingId ? 'Edit service' : 'Add a new service'}</h1>
+          <h1>{editingId ? 'Edit pressure washing package' : 'Add a pressure washing package'}</h1>
         </div>
         {(validationError || error || serviceCreate.error || serviceUpdate.error || serviceDelete.error) && (
           <div className="error-banner">
@@ -115,8 +115,8 @@ const SellerDashboard = () => {
 
       <section className="panel stack-md">
         <div>
-          <span className="eyebrow">Published Services</span>
-          <h2>Manage your current listings</h2>
+          <span className="eyebrow">Published Pressure Washing Services</span>
+          <h2>Manage your current wash listings</h2>
         </div>
         {loading && <div className="info-banner">Loading your services...</div>}
         <div className="table-shell">

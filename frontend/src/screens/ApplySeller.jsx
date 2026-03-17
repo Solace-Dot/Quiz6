@@ -19,8 +19,8 @@ const ApplySeller = () => {
         <span className="eyebrow">Seller Access</span>
         <h1>Apply to become a seller</h1>
         <p>
-          Any standard user can apply. Admin approval is required before you can publish services and receive
-          direct PayPal payments.
+          Any standard user can apply. Admin approval is required before you can publish pressure washing
+          packages and receive direct PayPal payments.
         </p>
       </div>
 

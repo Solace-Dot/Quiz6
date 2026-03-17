@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 
 import './App.css';
 import Layout from './components/Layout';
@@ -15,10 +14,9 @@ import SubscriptionList from './screens/SubscriptionList';
 import SubscriptionScreen from './screens/SubscriptionScreen';
 import UserProfile from './screens/UserProfile';
 import UserScreen from './screens/UserScreen';
-import { PAYPAL_CLIENT_ID } from './utils/paypal';
 
 function App() {
-  const appRoutes = (
+  return (
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
@@ -45,24 +43,6 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  );
-
-  if (!PAYPAL_CLIENT_ID) {
-    return appRoutes;
-  }
-
-  return (
-    <PayPalScriptProvider
-      options={{
-        clientId: PAYPAL_CLIENT_ID,
-        currency: 'USD',
-        intent: 'capture',
-        vault: true,
-        components: 'buttons',
-      }}
-    >
-      {appRoutes}
-    </PayPalScriptProvider>
   );
 }
 

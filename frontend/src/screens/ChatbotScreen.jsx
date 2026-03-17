@@ -12,7 +12,7 @@ const ChatbotScreen = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: 'Ask about platform services, seller applications, subscriptions, orders, or PayPal payment flow.',
+      text: 'Ask about pressure washing services, seller approvals, subscriptions, orders, or PayPal payment flow.',
     },
   ]);
 
@@ -73,7 +73,7 @@ const ChatbotScreen = () => {
         <textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
-          placeholder="Ask about services, sellers, subscriptions, orders, or PayPal flow..."
+          placeholder="Ask about driveway wash, roof cleaning, sellers, subscriptions, orders, or PayPal flow..."
         />
         <button type="submit" className="primary-button" disabled={loading}>
           {loading ? 'Thinking...' : 'Send'}

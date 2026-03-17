@@ -15,10 +15,10 @@ const Layout = () => {
     <div className="app-shell">
       <header className="topbar">
         <NavLink to="/" className="brand-mark">
-          ExpertHub
+          PressureWash Pro
         </NavLink>
         <nav className="topnav">
-          <NavLink to="/">Services</NavLink>
+          <NavLink to="/">Pressure Washing Services</NavLink>
           <NavLink to="/subscriptions">Subscriptions</NavLink>
           <NavLink to="/chatbot">AI Chatbot</NavLink>
           {userInfo?.user.role === 'seller' && <NavLink to="/seller/dashboard">Seller Dashboard</NavLink>}

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 
 import { createSubscription, getCurrentSubscription, listSubscriptionTiers } from '../actions/subscriptionActions';
 import { formatCurrency } from '../utils/format';
@@ -48,14 +48,15 @@ const SubscriptionScreen = () => {
                 <div className="info-banner">Configure a PayPal plan ID for {tier.name} in your frontend environment.</div>
               )}
               {PAYPAL_CLIENT_ID && planId && (
-                <PayPalButtons
-                  style={{ layout: 'vertical', shape: 'pill' }}
-                  fundingSource={undefined}
-                  createSubscription={(data, actions) => actions.subscription.create({ plan_id: planId })}
-                  onApprove={(data) => {
-                    dispatch(createSubscription({ tier: tier.id, paypal_subscription_id: data.subscriptionID }));
-                  }}
-                />
+                <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, vault: true, intent: 'subscription' }}>
+                  <PayPalButtons
+                    style={{ layout: 'vertical', shape: 'pill' }}
+                    createSubscription={(data, actions) => actions.subscription.create({ plan_id: planId })}
+                    onApprove={(data) => {
+                      dispatch(createSubscription({ tier: tier.id, paypal_subscription_id: data.subscriptionID }));
+                    }}
+                  />
+                </PayPalScriptProvider>
               )}
             </section>
           );

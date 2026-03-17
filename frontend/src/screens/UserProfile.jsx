@@ -116,7 +116,7 @@ const UserProfile = () => {
       <section className="panel stack-md">
         <div>
           <span className="eyebrow">Orders</span>
-          <h2>Your service transactions</h2>
+          <h2>Your pressure washing transactions</h2>
         </div>
         <div className="table-shell">
           <table>
