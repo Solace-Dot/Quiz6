@@ -13,6 +13,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     tier = SubscriptionTierSerializer(read_only=True)
     tier_id = serializers.IntegerField(write_only=True, required=False)
+    created_at = serializers.DateTimeField(source='subscribed_at', read_only=True)
 
     class Meta:
         model = UserSubscription
@@ -24,5 +25,6 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             'usage_left',
             'is_active',
             'subscribed_at',
+            'created_at',
             'paypal_subscription_id',
         ]

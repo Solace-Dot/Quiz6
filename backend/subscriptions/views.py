@@ -1,3 +1,5 @@
+import requests
+from django.conf import settings
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -48,3 +50,39 @@ class SubscriptionListView(generics.ListAPIView):
 	serializer_class = UserSubscriptionSerializer
 	permission_classes = [permissions.IsAuthenticated, IsAdminRole]
 	queryset = UserSubscription.objects.select_related('user', 'tier').all()
+
+
+class VerifyPaypalSubscriptionView(APIView):
+	permission_classes = [permissions.IsAuthenticated]
+
+	def post(self, request):
+		subscription_id = request.data.get('subscription_id', '').strip()
+		if not subscription_id:
+			raise serializers.ValidationError({'subscription_id': 'Subscription ID is required.'})
+
+		if not settings.PAYPAL_CLIENT_ID or not settings.PAYPAL_SECRET:
+			return Response({'detail': 'PayPal server credentials are not configured.'}, status=status.HTTP_400_BAD_REQUEST)
+
+		base = 'https://api-m.sandbox.paypal.com'
+		try:
+			token_response = requests.post(
+				f'{base}/v1/oauth2/token',
+				auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
+				data={'grant_type': 'client_credentials'},
+				headers={'Accept': 'application/json', 'Accept-Language': 'en_US'},
+				timeout=15,
+			)
+			token_response.raise_for_status()
+			access_token = token_response.json()['access_token']
+
+			subscription_response = requests.get(
+				f'{base}/v1/billing/subscriptions/{subscription_id}',
+				headers={'Authorization': f'Bearer {access_token}'},
+				timeout=15,
+			)
+			subscription_response.raise_for_status()
+			subscription_data = subscription_response.json()
+		except requests.RequestException:
+			return Response({'detail': 'Could not verify PayPal subscription at this time.'}, status=status.HTTP_502_BAD_GATEWAY)
+
+		return Response({'status': subscription_data.get('status'), 'subscription': subscription_data})

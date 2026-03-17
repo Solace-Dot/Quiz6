@@ -34,7 +34,7 @@ const SubscriptionList = () => {
               <tr key={subscriptionItem.id}>
                 <td>{subscriptionItem.user}</td>
                 <td>{subscriptionItem.tier.name}</td>
-                <td>{formatDate(subscriptionItem.subscribed_at)}</td>
+                <td>{formatDate(subscriptionItem.created_at || subscriptionItem.subscribed_at)}</td>
               </tr>
             ))}
             {!subscriptions?.length && !loading && (

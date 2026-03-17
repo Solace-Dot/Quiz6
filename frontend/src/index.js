@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
+import 'bootswatch/dist/flatly/bootstrap.css';
 
 import './index.css';
 import App from './App';

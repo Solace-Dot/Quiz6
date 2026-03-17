@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { approveApplication, declineApplication, listApplications } from '../actions/applicationActions';
@@ -26,10 +26,7 @@ const UserScreen = () => {
     dispatch(listApplications());
   }, [dispatch, userUpdateState.success, userDeleteState.success, applicationAction.success]);
 
-  const pendingApplications = useMemo(
-    () => applications?.filter((application) => application.status === 'pending') || [],
-    [applications]
-  );
+  const allApplications = applications || [];
 
   const openEditModal = (user) => {
     setEditingUser(user);
@@ -124,26 +121,36 @@ const UserScreen = () => {
               </tr>
             </thead>
             <tbody>
-              {pendingApplications.map((application) => (
+              {allApplications.map((application) => (
                 <tr key={application.id}>
                   <td>{application.user.name}</td>
                   <td>{application.user.email}</td>
                   <td>{application.status}</td>
                   <td>
                     <div className="table-actions">
-                      <button type="button" className="ghost-button" onClick={() => setApproveTarget(application)}>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        disabled={application.status !== 'pending'}
+                        onClick={() => setApproveTarget(application)}
+                      >
                         Approve
                       </button>
-                      <button type="button" className="danger-button" onClick={() => setDeclineTarget(application)}>
+                      <button
+                        type="button"
+                        className="danger-button"
+                        disabled={application.status !== 'pending'}
+                        onClick={() => setDeclineTarget(application)}
+                      >
                         Decline
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {!pendingApplications.length && (
+              {!allApplications.length && (
                 <tr>
-                  <td colSpan="4">No pending seller applications.</td>
+                  <td colSpan="4">No seller applications found.</td>
                 </tr>
               )}
             </tbody>

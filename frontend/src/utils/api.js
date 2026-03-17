@@ -5,6 +5,9 @@ const api = axios.create({
 });
 
 export const getErrorMessage = (error) => {
+  if (!error?.response) {
+    return 'Cannot connect to backend API. Make sure Django server is running at http://127.0.0.1:8000.';
+  }
   const data = error?.response?.data;
   if (typeof data === 'string') {
     return data;

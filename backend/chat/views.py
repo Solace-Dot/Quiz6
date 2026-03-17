@@ -1,6 +1,8 @@
+from django.conf import settings
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import requests
 
 from services.models import Service
 from subscriptions.models import UserSubscription
@@ -35,6 +37,21 @@ PROJECT_KEYWORDS = {
 class AIChatbotView(APIView):
 	permission_classes = [permissions.IsAuthenticated]
 
+	def _fallback_reply(self):
+		featured_services = Service.objects.select_related('seller').all()[:3]
+		snippets = []
+		for service in featured_services:
+			snippets.append(
+				f"{service.service_name} by {service.seller.first_name or service.seller.username} costs ${service.price} and takes {service.duration_of_service}."
+			)
+
+		service_context = ' '.join(snippets) if snippets else 'No services have been published yet.'
+		return (
+			'This platform connects users with pressure washing experts, lets approved sellers publish wash offerings, '
+			'supports PayPal checkout for each service, and uses subscriptions to unlock chatbot usage. '
+			f'Current platform examples: {service_context}'
+		)
+
 	def post(self, request):
 		message = request.data.get('message', '').strip()
 		if not message:
@@ -61,17 +78,35 @@ class AIChatbotView(APIView):
 		subscription.usage_left -= 1
 		subscription.save(update_fields=['usage_left'])
 
-		featured_services = Service.objects.select_related('seller').all()[:3]
-		snippets = []
-		for service in featured_services:
-			snippets.append(
-				f"{service.service_name} by {service.seller.first_name or service.seller.username} costs ${service.price} and takes {service.duration_of_service}."
-			)
+		reply = self._fallback_reply()
 
-		service_context = ' '.join(snippets) if snippets else 'No services have been published yet.'
-		reply = (
-			'This platform connects users with pressure washing experts, lets approved sellers publish wash offerings, '
-			'supports PayPal checkout for each service, and uses subscriptions to unlock chatbot usage. '
-			f'Current platform examples: {service_context}'
-		)
+		if settings.OPENAI_API_KEY:
+			try:
+				payload = {
+					'model': settings.OPENAI_MODEL,
+					'messages': [
+						{
+							'role': 'system',
+							'content': (
+								'You are an assistant for a pressure washing services marketplace. '
+								'Only answer questions related to pressure washing services, sellers, pricing, '
+								'durations, subscriptions, order flow, and PayPal checkout.'
+							),
+						},
+						{'role': 'user', 'content': message},
+					],
+					'temperature': 0.4,
+				}
+				headers = {
+					'Authorization': f'Bearer {settings.OPENAI_API_KEY}',
+					'Content-Type': 'application/json',
+				}
+				ai_response = requests.post(settings.OPENAI_API_URL, json=payload, headers=headers, timeout=15)
+				if ai_response.ok:
+					response_json = ai_response.json()
+					reply = response_json['choices'][0]['message']['content'].strip()
+			except Exception:
+				# Keep fallback reply when external AI request fails.
+				pass
+
 		return Response({'reply': reply, 'usage_left': subscription.usage_left})
