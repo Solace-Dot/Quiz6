@@ -1,0 +1,9 @@
+from django.contrib import admin
+
+from .models import Service
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+	list_display = ('service_name', 'seller', 'price', 'duration_of_service', 'rating')
+	search_fields = ('service_name', 'seller__email', 'seller__username')
