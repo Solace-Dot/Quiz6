@@ -11,6 +11,16 @@ PROJECT_KEYWORDS = {
 	'services',
 	'seller',
 	'expert',
+	'pressure',
+	'washing',
+	'driveway',
+	'patio',
+	'deck',
+	'roof',
+	'siding',
+	'gutter',
+	'exterior',
+	'soft wash',
 	'subscription',
 	'price',
 	'duration',
@@ -42,7 +52,7 @@ class AIChatbotView(APIView):
 		if not any(keyword in lowered for keyword in PROJECT_KEYWORDS):
 			return Response(
 				{
-					'reply': 'I can only answer questions about the expert services platform, including services, sellers, orders, subscriptions, and payments.',
+					'reply': 'I can only answer questions about this pressure washing services platform, including wash services, sellers, orders, subscriptions, and payments.',
 					'usage_left': subscription.usage_left,
 				},
 				status=status.HTTP_200_OK,
@@ -60,8 +70,8 @@ class AIChatbotView(APIView):
 
 		service_context = ' '.join(snippets) if snippets else 'No services have been published yet.'
 		reply = (
-			'This platform connects users with expert-led services, lets approved sellers publish offerings, '
-			'supports PayPal checkout for services, and uses subscriptions to unlock chatbot usage. '
+			'This platform connects users with pressure washing experts, lets approved sellers publish wash offerings, '
+			'supports PayPal checkout for each service, and uses subscriptions to unlock chatbot usage. '
 			f'Current platform examples: {service_context}'
 		)
 		return Response({'reply': reply, 'usage_left': subscription.usage_left})
